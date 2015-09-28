@@ -1,0 +1,18 @@
+doctype html
+head
+  title test
+
+  if process.env.NODE_ENV === 'production'
+    link(href='/bundle.css', rel='stylesheet')
+  else
+    link(href='/styles/index.css', rel='stylesheet')
+
+body
+  main#app
+
+  if process.env.NODE_ENV === 'production'
+    script(src='/bundle.js')
+  else
+    script(src='/jspm_packages/system.js')
+    script(src='/config.js')
+    script(src='/scripts/loader.js')
