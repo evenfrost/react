@@ -20,27 +20,45 @@ let ContactItem = React.createClass({
 
 let ContactForm = React.createClass({
   propTypes: {
-    contact: React.PropTypes.object.isRequired
+    contact: React.PropTypes.object.isRequired,
+    onChange: React.PropTypes.func.isRequired
   },
 
   render: function () {
-    return React.createElement('form', {}, 
+    let contact = this.props.contact;
+    let onChange = this.props.onChange;
+
+    return React.createElement('form', {
+        onSubmit: event => {
+          let contact = this.props.contact;
+
+          event.preventDefault();
+
+          if (contact.name && contact.email) {
+            contacts.push(Object.assign(contact, { key: currentKey++ }));
+            return render(contact, contacts);
+          }
+        }
+      },
       React.createElement('input', {
         type: 'text',
         name: 'name',
         placeholder: 'Name',
-        value: this.props.contact.name
+        value: this.props.contact.name,
+        onChange: event => onChange(Object.assign({}, contact, { name: event.target.value }))
       }),
       React.createElement('input', {
         type: 'email',
         name: 'email',
         placeholder: 'Email',
-        value: this.props.contact.email
+        value: this.props.contact.email,
+        onChange: event => onChange(Object.assign({}, contact, { email: event.target.value }))
       }),
       React.createElement('textarea', {
         name: 'description',
         placeholder: 'Description',
-        value: this.props.contact.description
+        value: this.props.contact.description,
+        onChange: event => onChange(Object.assign({}, contact, { description: event.target.value }))
       }),
       React.createElement('button', { type: 'submit' }, 'Add Contact')
     );
@@ -50,41 +68,53 @@ let ContactForm = React.createClass({
 let ContactView = React.createClass({
   propTypes: {
     contacts: React.PropTypes.array.isRequired,
-    newContact: React.PropTypes.object.isRequired
+    newContact: React.PropTypes.object.isRequired,
+    onNewContactChange: React.PropTypes.func.isRequired
   },
 
   render: function () {
-    return React.createElement('main', {}, 
+    return React.createElement('div', {}, 
       React.createElement('h1', {}, 'Contacts'),
       React.createElement('ul', {},
-        contacts.map(contact => React.createElement(ContactItem, contact))
+        this.props.contacts.map(contact => React.createElement(ContactItem, contact))
       ),
-      React.createElement(ContactForm, { contact: this.props.newContact })
+      React.createElement(ContactForm, {
+        contact: this.props.newContact,
+        onChange: this.props.onNewContactChange
+      })
     );
     
   }
-})
+});
+
+let currentKey = 0;
 
 let contacts = [{ 
-  key: 1,
+  key: currentKey++,
   name: 'John Doe',
   email: 'john@doe.com',
   description: 'Front-end Unicorn'
 }, {
-  key: 2,
+  key: currentKey++,
   name: 'John Smith',
   email: 'john@smith.com'
 }];
 
 let newContact = {
-  name: '',
+  name: 'Aleksey',
   email: '',
   description: ''
 };
  
-ReactDOM.render(
-  React.createElement(ContactView, {
-    contacts: contacts,
-    newContact: newContact
-  }), document.querySelector('#app')
-);
+
+let render = (contact, contacts) => {
+  ReactDOM.render(
+    React.createElement(ContactView, {
+      contacts: contacts,
+      newContact: contact,
+      onNewContactChange: contact => render(contact, contacts)
+    }), document.querySelector('#app')
+  );
+};
+
+render(newContact, contacts);

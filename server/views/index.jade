@@ -7,7 +7,8 @@ head
   else
     link(href='/styles/index.css', rel='stylesheet')
 
-body#app
+body
+  main#app
 
   if process.env.NODE_ENV === 'production'
     script(src='/bundle.js')
